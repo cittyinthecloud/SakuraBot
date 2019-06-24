@@ -1,0 +1,4 @@
+*.code-workspace
+SECRET.py
+venv/
+.vscode/
