@@ -31,5 +31,3 @@ class BasicCog(commands.Cog):
         discord.Embed.add_field()
         embed.add_field("Sync Twitch Followers", settings.synctwitchfollowers)
         embed.add_field("Twitch Account Username", settings.twitchaccountusername)        
-    
-    @
