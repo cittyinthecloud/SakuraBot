@@ -2,3 +2,7 @@
 SECRET.py
 venv/
 .vscode/
+.idea/
+__pycache__/
+db.sqlite3*
+cogs/owner\.py

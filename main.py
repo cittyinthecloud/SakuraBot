@@ -1,16 +1,19 @@
-from discord.ext import commands
-from discord.ext.commands import Bot
+import logging
 import sys
 import traceback
-import logging
-from SECRET import bot_token
+
+from discord.ext import commands
+from discord.ext.commands import Bot
 from tortoise import Tortoise
 
-init_extensions = ["cogs.basic"]
+from SECRET import bot_token
+
+init_extensions = [
+    "cogs.basic", "cogs.nopermvc", "cogs.owner", "cogs.follower"]
 
 logging.basicConfig(level=logging.INFO)
 
-bot: Bot
+bot: Bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"))
 
 async def asyncinit():
     await Tortoise.init(
@@ -20,13 +23,12 @@ async def asyncinit():
     await Tortoise.generate_schemas()
 
 if __name__ == "__main__":
-    bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"))
+
     bot.loop.run_until_complete(asyncinit())
     for ext in init_extensions:
         try:
-            bot.load_extension(extension)
+            bot.load_extension(ext)
         except Exception as e:
             print(f"Failed to load extension {ext}", file=sys.stderr)
             traceback.print_exc()
-
-    
+    bot.run(bot_token)
