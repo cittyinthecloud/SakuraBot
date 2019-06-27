@@ -1,16 +1,15 @@
 import concurrent.futures
 from typing import Optional
 
-import aiohttp
 from discord import Guild, Role
 from discord import utils
-from discord.ext import commands
+from discord.ext import commands, tasks
+from requests.exceptions import HTTPError
 from twitch import TwitchClient
 
 from SECRET import twitch_client_id
 from models import UserData
 from utils.database import get_guild_settings
-from requests.exceptions import HTTPError
 
 client: TwitchClient = TwitchClient(client_id=twitch_client_id)
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
@@ -28,7 +27,6 @@ def is_following(streamer: str, memberid: str):
         return client.users.check_follows_channel(memberid, streamerids[streamer])
     except HTTPError:
         return False
-
 
 
 class TwitchCog(commands.Cog):
@@ -52,9 +50,9 @@ class TwitchCog(commands.Cog):
                 #         following = await self.bot.loop.run_in_executor(executor, is_following, streamername, acc["id"])
                 #
                 #         if following and followerrole not in member.roles:
-                #                 #             await member.add_roles(followerrole)
-                #                 #         elif not following and followerrole in member.roles:
-                #                 #             await member.remove_roles(followerrole)
+                #             await member.add_roles(followerrole)
+                #         elif not following and followerrole in member.roles:
+                #             await member.remove_roles(followerrole)
                 query = UserData.filter(user_id=str(member.id))
 
                 if await query.count() < 1:
@@ -70,8 +68,8 @@ class TwitchCog(commands.Cog):
                     elif not following and followerrole in member.roles:
                         await member.remove_roles(followerrole)
 
-    @commands.command()
-    async def followerrefresh(self, ctx: commands.Context):
+    @commands.command(name="followerrefresh")
+    async def follower_refresh(self, ctx: commands.Context):
         if ctx.guild is None:
             return await ctx.send("This command must be done in a guild")
 
@@ -79,8 +77,9 @@ class TwitchCog(commands.Cog):
 
         await ctx.send("Guild follower updated")
 
-    @commands.command()
-    async def mytwitchis(self, ctx: commands.Context, username: str):
+    @commands.guild_only()
+    @commands.command(name="mytwitchis")
+    async def set_twitch_account(self, ctx: commands.Context, username: str):
         ret = await self.bot.loop.run_in_executor(executor, client.users.translate_usernames_to_ids, [username])
         if len(ret) < 1:
             return await ctx.send(f"Could not find twitch user with name {username}")
@@ -89,9 +88,14 @@ class TwitchCog(commands.Cog):
         )[0]
         userdata.twitch_account_id = ret[0]["id"]
         await userdata.save()
+        await self.guild_check(ctx.guild)
         return await ctx.send(f"Your twitch account has been set to {username}")
+
+    @tasks.loop(minutes=5.0)
+    async def follower_check_task(self):
+        for guild in self.bot.guilds:
+            await self.guild_check(guild)
 
 
 def setup(bot):
     bot.add_cog(TwitchCog(bot))
-

@@ -9,6 +9,7 @@ class GuildSettings(Model):
     follower_role_name = fields.CharField(255)
     kick_on_losing_connect_perms = fields.BooleanField()
 
+
 class UserData(Model):
     user_id = fields.CharField(18, pk=True)
     twitch_account_id = fields.TextField()

@@ -8,19 +8,17 @@ from tortoise import Tortoise
 
 from SECRET import bot_token
 
-init_extensions = [
-    "cogs.basic", "cogs.nopermvc", "cogs.owner", "cogs.follower"]
+init_extensions = ["cogs.basic", "cogs.nopermvc", "cogs.follower", "cogs.privatechan"]
 
 logging.basicConfig(level=logging.INFO)
 
 bot: Bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"))
 
+
 async def asyncinit():
-    await Tortoise.init(
-        db_url="sqlite://db.sqlite3",
-        modules=dict(models=["models"])
-    )
+    await Tortoise.init(db_url="sqlite://db.sqlite3", modules=dict(models=["models"]))
     await Tortoise.generate_schemas()
+
 
 if __name__ == "__main__":
 
