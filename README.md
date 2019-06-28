@@ -1,6 +1,8 @@
 SakuraBot
 ===
 
+![Sakura Mamiya][sakura]
+
 SakuraBot is a bot created for Discord Hackweek by famous1622 and SnowyTSW.
 
 Features:
@@ -52,3 +54,5 @@ To run it:
 4. ???
 
 5. Profit.
+
+[sakura]: https://vignette.wikia.nocookie.net/kyokainorinne/images/0/0a/Anime_Sakura.png "Sakura Mamiya"
